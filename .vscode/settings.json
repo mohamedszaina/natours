@@ -1,0 +1,5 @@
+{
+  "dotenv.enableAutocloaking": false,
+  "cSpell.ignoreWords": ["natours"],
+  "cSpell.words": ["advancedquery"]
+}
