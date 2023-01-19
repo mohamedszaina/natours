@@ -13,12 +13,29 @@ const signToken = (id) => {
 };
 
 const createAndSendToken = (user, statusCode, res) => {
-  // const tokenParams = req.params.token;
   const token = signToken(user._id);
-  // console.log(tokenParams, token);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true, //cannot be accessed or modified in any way by the browser
+  };
+
+  // set the secure option in the cookie to true when it is in the production because the secure option Marks the cookie to be used with HTTPS only.
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  // Store the jwt token info in a cookie and send it as a secure cookie
+  res.cookie('jwt', token, cookieOptions);
+
+  // Remove the password data from the output
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'suc',
     token,
+    data: {
+      user,
+    },
   });
 };
 // For creating an new user account
