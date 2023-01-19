@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { use } = require('../routes/userRoutes');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -54,6 +55,11 @@ const userSchema = new mongoose.Schema({
   passwordResetExpires: {
     type: Date,
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -76,6 +82,13 @@ userSchema.pre('save', function (next) {
   this.passwordChangedAt = Date.now() - 1000;
   /* (I think it will work without it too but lets do it like that) 
   -1000 It is to prevent any time delays in creating the token and updating the changed at field. By saying the changed at field was done a second earlier the chances of any network delays creating a bug where the new token appears to be created before the time changedAt value. */
+  next();
+});
+
+// this will show all the users with the property active=true only when the getAllUsers middleware called
+userSchema.pre(/^find/, function (next) {
+  // this.find({active:true}) not the same
+  this.find({ active: { $ne: false } });
   next();
 });
 

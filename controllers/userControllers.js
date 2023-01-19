@@ -18,7 +18,7 @@ const objFilter = (obj, ...allowedObjData) => {
 };
 
 // User Handlers
-const getAllusers = catchAsync(async (req, res, next) => {
+const getAllUsers = catchAsync(async (req, res, next) => {
   const userdata = await User.find();
   if (userdata.length == 0) {
     return next(new AppError(404, `No users exist yet!`));
@@ -31,7 +31,7 @@ const getAllusers = catchAsync(async (req, res, next) => {
     },
   });
 });
-const createuser = catchAsync(async (req, res, next) => {
+const createUser = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
   res.status(201).json({
     status: 'suc',
@@ -40,7 +40,7 @@ const createuser = catchAsync(async (req, res, next) => {
     },
   });
 });
-const getuserById = catchAsync(async (req, res, next) => {
+const getUserById = catchAsync(async (req, res, next) => {
   const id = req.params.id;
   const user = await User.findById(id);
   if (!user) {
@@ -76,8 +76,8 @@ const updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
-// this updateuser is for the admin to update the user data
-const updateuser = catchAsync(async (req, res, next) => {
+// this updateUser is for the admin to update the user data
+const updateUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const user = await User.findByIdAndUpdate(id, req.body, {
     new: true,
@@ -93,7 +93,20 @@ const updateuser = catchAsync(async (req, res, next) => {
     },
   });
 });
-const deleteuser = catchAsync(async (req, res, next) => {
+
+// For activate and deactivate the user account but not deleting it.
+const deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(204).json({
+    status: 'suc',
+    message: {
+      data: null,
+    },
+  });
+});
+
+// For deleting the user account permanently
+const deleteUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const user = await User.findByIdAndDelete(id);
   if (!user) {
@@ -105,10 +118,11 @@ const deleteuser = catchAsync(async (req, res, next) => {
   });
 });
 module.exports = {
-  getAllusers,
-  getuserById,
-  createuser,
-  updateuser,
-  deleteuser,
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
   updateMe,
+  deleteMe,
 };

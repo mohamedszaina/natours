@@ -1,12 +1,13 @@
 const express = require('express');
 // const { route } = require('../app');
 const {
-  getAllusers,
-  getuserById,
-  createuser,
-  updateuser,
-  deleteuser,
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
   updateMe,
+  deleteMe,
 } = require('../controllers/userControllers');
 const {
   signup,
@@ -21,18 +22,20 @@ const userRoute = express.Router();
 // User Routes
 userRoute.post('/signup', signup);
 userRoute.post('/login', login);
-
 userRoute.post('/forgetPassword', forgetPassword);
+
 userRoute.patch('/resetPassword/:token', resetPassword);
 userRoute.patch('/updatePassword', isLoginProtection, updatePassword);
 userRoute.patch('/updateMe', isLoginProtection, updateMe);
 
-userRoute.route('/').get(isLoginProtection, getAllusers).post(createuser);
+userRoute.delete('/deleteMe', isLoginProtection, deleteMe);
+
+userRoute.route('/').get(isLoginProtection, getAllUsers).post(createUser);
 
 userRoute
   .route('/:id')
-  .get(getuserById)
-  .patch(isLoginProtection, updateuser)
-  .delete(isLoginProtection, deleteuser);
+  .get(getUserById)
+  .patch(isLoginProtection, updateUser)
+  .delete(isLoginProtection, deleteUser);
 
 module.exports = userRoute;
