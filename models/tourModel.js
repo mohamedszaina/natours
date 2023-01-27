@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const validator = require('validator');
+// const validator = require('validator');
+const { User } = require('./userModel');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -106,6 +107,9 @@ const tourSchema = new mongoose.Schema(
         description: String,
       },
     ],
+    guides: {
+      type: Array,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -120,10 +124,21 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-// tourSchema.pre('save', function (next) {
-//   console.log('will save...');
-//   next();
-// });
+
+
+// Embedding way 
+/* 
+So the idea here is that when creating a new tour document, the user will simply
+add an array of user IDs, and we will then get the corresponding user documents
+based on these IDs, and add them to our tour documents.
+So in other words, we embed them into our tour.
+*/
+tourSchema.pre('save',async function (next) {
+  const ids = this.guides;
+  // This will prevent multiple DB calls if there are more than 2+ ids in guides array and also a map() function.
+  this.guides = await User.find({ _id: { $in: ids } });
+  next()
+});
 
 // Query Middleware
 tourSchema.pre(/^find/, function (next) {
