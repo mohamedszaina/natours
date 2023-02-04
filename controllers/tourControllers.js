@@ -112,8 +112,20 @@ const getAllTours = catchAsync(async (req, res, next) => {
 
 const getTourById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const tourData = await Tour.findById(id); //considering the data type in the equalization process
-  // const tour = tours.find((e) => id == e.id); // not considering the data type in the equalization process
+  const tourData = await Tour.findById(id)
+ /* 
+  * I made a mongo pre middleware in the tour module insted of dublicating the populare all over the code 
+  .populate({
+    path: 'guides',
+    select: '-passwordChangedAt -__v',
+  });*/
+  /* 
+  * With populate in the select field :
+  * when we put (-) before the field name it will hide it and show other fields info 
+  * but when we don't put(-) before the field then it will only show that field and hide the other fields info
+  */
+  // * considering the data type in the equalization process
+  // const tour = tours.find((e) => id == e.id); // * not considering the data type in the equalization process
   if (!tourData) {
     return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
   }

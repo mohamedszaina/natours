@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 // const validator = require('validator');
-const { User } = require('./userModel');
+// const { User } = require('./userModel');
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -107,9 +108,12 @@ const tourSchema = new mongoose.Schema(
         description: String,
       },
     ],
-    guides: {
-      type: Array,
-    },
+    guides: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -125,25 +129,36 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-
-// Embedding way 
+// Embedding way
 /* 
 So the idea here is that when creating a new tour document, the user will simply
 add an array of user IDs, and we will then get the corresponding user documents
 based on these IDs, and add them to our tour documents.
 So in other words, we embed them into our tour.
 */
-tourSchema.pre('save',async function (next) {
-  const ids = this.guides;
-  // This will prevent multiple DB calls if there are more than 2+ ids in guides array and also a map() function.
-  this.guides = await User.find({ _id: { $in: ids } });
-  next()
-});
+// tourSchema.pre('save',async function (next) {
+//   // you can do it like this too.
+//   // const ids = this.guides.map(id => User.findById(id));
+//   // this.guides = await Promise.all(ids);
+
+//   const ids = this.guides;
+//   // This will prevent multiple DB calls if there are more than 2+ ids in guides array and also a map() function.
+//   this.guides = await User.find({ _id: { $in: ids } });
+//   next()
+// });
 
 // Query Middleware
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+// * the pupulate Query Middleware for evrey find word in the code
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-passwordChangedAt -__v',
+  });
   next();
 });
 tourSchema.post(/^find/, function (docs, next) {
