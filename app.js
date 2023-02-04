@@ -10,6 +10,7 @@ const AppError = require('./utils/appError');
 const { globalError } = require('./controllers/errorController');
 const userRoute = require('./routes/userRoutes');
 const tourRoute = require('./routes/tourRoutes');
+const reviewRoute = require('./routes/reviewRouts');
 
 const app = express();
 
@@ -81,6 +82,9 @@ app.use('/api/v1/tours', tourRoute);
 
 // User Routes
 app.use('/api/v1/users', userRoute);
+
+// Review Routes
+app.use('/api/v1/reviews', reviewRoute);
 
 // to trigger the Error middleware
 app.all('*', (req, res, next) => {
