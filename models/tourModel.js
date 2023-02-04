@@ -123,6 +123,12 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
+
+tourSchema.virtual('reviews',{
+  ref:'Review',
+  foreignField:'tour',
+  localField:"_id"
+})
 // Document Middleware it works only for create and save
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });

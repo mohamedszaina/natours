@@ -112,7 +112,7 @@ const getAllTours = catchAsync(async (req, res, next) => {
 
 const getTourById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const tourData = await Tour.findById(id)
+  const tourData = await Tour.findById(id).populate('reviews')
  /* 
   * I made a mongo pre middleware in the tour module insted of dublicating the populare all over the code 
   .populate({
