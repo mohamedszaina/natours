@@ -3,6 +3,7 @@ const {
   isLoginProtection,
   restrictTo,
 } = require('../controllers/authController');
+const { createNewReview } = require('../controllers/reviewController');
 const {
   getAllTours,
   getTourById,
@@ -27,4 +28,5 @@ tourRoute
   .patch(isLoginProtection, updateTour)
   .delete(isLoginProtection, restrictTo('admin', 'lead-guide'), deleteTour);
 
+  tourRoute.route('/:tourId/reviews').post(isLoginProtection,restrictTo('user'),createNewReview)
 module.exports = tourRoute;
