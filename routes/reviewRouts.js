@@ -8,7 +8,9 @@ const {
   restrictTo,
 } = require('../controllers/authController');
 
-const reviewRoute = express.Router();
+// Thanks to {mergeParams:true} we can get access to review id which actually comes from the other router before which is the tourRoute.use('/:tourId/reviews', reviewRoute);.
+const reviewRoute = express.Router({mergeParams:true});
+
 
 reviewRoute
   .route('/')

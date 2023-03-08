@@ -16,8 +16,14 @@ const {
   // checkId,
   // checkBody,
 } = require('./../controllers/tourControllers');
+const reviewRoute = require('./reviewRouts');
+
 const tourRoute = express.Router();
 // tourRoute.param('id', checkId);
+
+// It will be redirected to the reviewRoute whenever the url matches '/:tourId/reviews'.
+tourRoute.use('/:tourId/reviews', reviewRoute);
+
 tourRoute.route('/tour-stats').get(getTourStats);
 tourRoute.route('/monthly-plan/:year').get(monthlyPlan);
 tourRoute.route('/top-5-cheap').get(aliasTopTours, getAllTours);
@@ -28,5 +34,5 @@ tourRoute
   .patch(isLoginProtection, updateTour)
   .delete(isLoginProtection, restrictTo('admin', 'lead-guide'), deleteTour);
 
-  tourRoute.route('/:tourId/reviews').post(isLoginProtection,restrictTo('user'),createNewReview)
+  // tourRoute.route('/:tourId/reviews').post(isLoginProtection,restrictTo('user'),createNewReview)
 module.exports = tourRoute;
