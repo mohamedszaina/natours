@@ -3,6 +3,7 @@ const { Tour } = require('../models/tourModel');
 const apiFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const { deleteOne } = require('./handlerFactory');
 
 // const tourSimplePath = `${__dirname}/../dev-data/data/tours-simple.json`;
 // const tours = JSON.parse(fs.readFileSync(tourSimplePath));
@@ -186,21 +187,23 @@ const updateTour = catchAsync(async (req, res, next) => {
   });
 });
 
-const deleteTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const tour = await Tour.findByIdAndDelete(id);
-  // const tour = tours.find((e) => parseInt(id) === e.id); //considering the data type in the equalization process
-  // const tour = tours.find((e) => id == e.id); // not considering the data type in the equalization process
-  if (!tour) {
-    return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
-  }
-  res.status(204).json({
-    status: 'suc',
-    data: {
-      tour: 'Deleted tour',
-    },
-  });
-});
+const deleteTour = deleteOne(Tour);
+
+// const deleteTour = catchAsync(async (req, res, next) => {
+//   const { id } = req.params;
+//   const tour = await Tour.findByIdAndDelete(id);
+//   // const tour = tours.find((e) => parseInt(id) === e.id); //considering the data type in the equalization process
+//   // const tour = tours.find((e) => id == e.id); // not considering the data type in the equalization process
+//   if (!tour) {
+//     return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
+//   }
+//   res.status(204).json({
+//     status: 'suc',
+//     data: {
+//       tour: 'Deleted tour',
+//     },
+//   });
+// });
 
 const getTourStats = catchAsync(async (req, res) => {
   const stats = await Tour.aggregate([

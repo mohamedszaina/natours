@@ -1,6 +1,7 @@
 const { User } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const { deleteOne } = require('./handlerFactory');
 
 const objFilter = (obj, ...allowedObjData) => {
   const newObj = {};
@@ -105,18 +106,20 @@ const deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-// For deleting the user account permanently
-const deleteUser = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const user = await User.findByIdAndDelete(id);
-  if (!user) {
-    return next(new AppError(404, `The user with the id:${id} dos'nt exist!`));
-  }
-  res.status(204).json({
-    status: 'suc',
-    message: 'Deleted suc',
-  });
-});
+// For deleting the user account permanently By the ADMIN
+const deleteUser = deleteOne(User);
+// const deleteUser = catchAsync(async (req, res, next) => {
+//   const { id } = req.params;
+//   const user = await User.findByIdAndDelete(id);
+//   if (!user) {
+//     return next(new AppError(404, `The user with the id:${id} dos'nt exist!`));
+//   }
+//   res.status(204).json({
+//     status: 'suc',
+//     message: 'Deleted suc',
+//   });
+// });
+
 module.exports = {
   getAllUsers,
   getUserById,

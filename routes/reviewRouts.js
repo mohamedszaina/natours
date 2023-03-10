@@ -2,6 +2,7 @@ const express = require('express');
 const {
   getAllReviews,
   createNewReview,
+  deleteReview,
 } = require('../controllers/reviewController');
 const {
   isLoginProtection,
@@ -16,5 +17,7 @@ reviewRoute
   .route('/')
   .get(getAllReviews)
   .post(isLoginProtection, restrictTo('user'), createNewReview);
+
+  reviewRoute.route('/:id').delete(deleteReview)
 
 module.exports = reviewRoute;

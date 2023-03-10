@@ -2,6 +2,7 @@ const { Review } = require('../models/reviewModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { Tour } = require('../models/tourModel');
+const { deleteOne } = require('./handlerFactory');
 
 const getAllReviews = catchAsync(async (req, res, next) => {
   /*
@@ -36,4 +37,6 @@ const createNewReview = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { getAllReviews, createNewReview };
+const deleteReview = deleteOne(Review);
+
+module.exports = { getAllReviews, createNewReview, deleteReview };
