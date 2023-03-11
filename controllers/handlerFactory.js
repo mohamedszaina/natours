@@ -43,6 +43,7 @@ const getOne = (Model, populateOptions) =>
     });
   });
 
+  // For all but not hte user section 
 const createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.create(req.body);
