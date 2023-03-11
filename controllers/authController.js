@@ -130,7 +130,7 @@ const isLoginProtection = catchAsync(async (req, res, next) => {
   next();
 });
 
-// To prevent any one but how have the right role to do any changes on specific things
+// To prevent any one but who have the right role to do any changes on specific things
 const restrictTo = (...roles) => {
   return (req, res, next) => {
     console.log(req.user);

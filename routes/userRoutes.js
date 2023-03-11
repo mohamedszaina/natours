@@ -1,5 +1,4 @@
 const express = require('express');
-// const { route } = require('../app');
 const {
   getAllUsers,
   getUserById,
@@ -36,7 +35,9 @@ userRoute.route('/').get(isLoginProtection, getAllUsers).post(createUser);
 userRoute
   .route('/:id')
   .get(getUserById)
-  .patch(isLoginProtection, updateUser)
+  .patch(
+    // isLoginProtection,
+     updateUser)
   .delete(deleteUser);
   // .delete(isLoginProtection, restrictTo('admin'), deleteUser);
 

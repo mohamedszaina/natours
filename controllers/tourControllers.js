@@ -1,9 +1,8 @@
 // const fs = require('fs');
 const { Tour } = require('../models/tourModel');
-const apiFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
-const { deleteOne } = require('./handlerFactory');
+// const AppError = require('../utils/appError');
+const { deleteOne, updateOne, createOne, getOne, getAll } = require('./handlerFactory');
 
 // const tourSimplePath = `${__dirname}/../dev-data/data/tours-simple.json`;
 // const tours = JSON.parse(fs.readFileSync(tourSimplePath));
@@ -39,153 +38,161 @@ const aliasTopTours = (req, res, next) => {
   req.query.sort = 'ratingAverage,price';
   next();
 };
-const getAllTours = catchAsync(async (req, res, next) => {
-  // Build the query
-  // 1A) Filtering
-  // const queryObj = { ...req.query };
-  // const excludedFields = ['page', 'sort', 'limit', 'fields'];
-  // excludedFields.forEach((el) => delete queryObj[el]); // to exclude ['page', 'sort', 'limit', 'fields'] from the queryObj
 
-  // console.log(queryObj);
-  // console.log(req.query);
+const getAllTours = getAll(Tour);
+// const getAllTours = catchAsync(async (req, res, next) => {
+//   // Build the query
+//   // 1A) Filtering
+//   // const queryObj = { ...req.query };
+//   // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+//   // excludedFields.forEach((el) => delete queryObj[el]); // to exclude ['page', 'sort', 'limit', 'fields'] from the queryObj
 
-  // 1B) Advanced Filtering
-  // let queryStr = JSON.stringify(queryObj); // To convert the object to a string
-  // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-  // const advancedqueryObj = JSON.parse(queryStr); // To convert the string to an object
-  // console.log(advancedqueryObj);
+//   // console.log(queryObj);
+//   // console.log(req.query);
 
-  // let toursQuery = Tour.find(advancedqueryObj);
+//   // 1B) Advanced Filtering
+//   // let queryStr = JSON.stringify(queryObj); // To convert the object to a string
+//   // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+//   // const advancedqueryObj = JSON.parse(queryStr); // To convert the string to an object
+//   // console.log(advancedqueryObj);
 
-  // 2) Sorting
-  // const { sort } = req.query;
-  // if (sort) {
-  //   const sortBy = sort.split(',').join(' ');
-  //   // console.log(sort);
-  //   // console.log(sortBy);
-  //   toursQuery = toursQuery.sort(sortBy);
-  // } else {
-  //   toursQuery = toursQuery.sort('-createdAt');
-  // }
+//   // let toursQuery = Tour.find(advancedqueryObj);
 
-  // // 3) Fields limiting
-  // // (Specifies which document fields to include or exclude (also known as the query "projection"))
-  // const { fields } = req.query;
-  // if (fields) {
-  //   // document fields to include
-  //   const fieldsLimits = fields.split(',').join(' ');
-  //   toursQuery = toursQuery.select(fieldsLimits);
-  // } else {
-  //   // document fields to exclude
-  //   toursQuery = toursQuery.select('-__v -createdAt');
-  // }
+//   // 2) Sorting
+//   // const { sort } = req.query;
+//   // if (sort) {
+//   //   const sortBy = sort.split(',').join(' ');
+//   //   // console.log(sort);
+//   //   // console.log(sortBy);
+//   //   toursQuery = toursQuery.sort(sortBy);
+//   // } else {
+//   //   toursQuery = toursQuery.sort('-createdAt');
+//   // }
 
-  // // 4) pagination (how many documents to show per page)
-  // // *1 means:-> convert the value from string to number
-  // // ||1 means:-> the default value is 1 if there is no value
-  // const page = req.query.page * 1 || 1;
-  // const limit = req.query.limit * 1 || 100;
-  // const skip = (page - 1) * limit;
-  // toursQuery = toursQuery.skip(skip).limit(limit);
-  // // if the page doesn't exists
-  // const numberOfDocuments = await Tour.countDocuments();
-  // if (skip >= numberOfDocuments) {
-  //   throw new Error("This page doesn't exist");
-  // }
+//   // // 3) Fields limiting
+//   // // (Specifies which document fields to include or exclude (also known as the query "projection"))
+//   // const { fields } = req.query;
+//   // if (fields) {
+//   //   // document fields to include
+//   //   const fieldsLimits = fields.split(',').join(' ');
+//   //   toursQuery = toursQuery.select(fieldsLimits);
+//   // } else {
+//   //   // document fields to exclude
+//   //   toursQuery = toursQuery.select('-__v -createdAt');
+//   // }
 
-  // Execute query
-  const features = new apiFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .pagination();
-  const tours = await features.query;
+//   // // 4) pagination (how many documents to show per page)
+//   // // *1 means:-> convert the value from string to number
+//   // // ||1 means:-> the default value is 1 if there is no value
+//   // const page = req.query.page * 1 || 1;
+//   // const limit = req.query.limit * 1 || 100;
+//   // const skip = (page - 1) * limit;
+//   // toursQuery = toursQuery.skip(skip).limit(limit);
+//   // // if the page doesn't exists
+//   // const numberOfDocuments = await Tour.countDocuments();
+//   // if (skip >= numberOfDocuments) {
+//   //   throw new Error("This page doesn't exist");
+//   // }
 
-  // Send data
-  res.status(200).json({
-    status: 'suc',
-    tourLength: tours.length,
-    data: {
-      tours: tours,
-    },
-  });
-});
+//   // Execute query
+//   const features = new apiFeatures(Tour.find(), req.query)
+//     .filter()
+//     .sort()
+//     .limitFields()
+//     .pagination();
+//   const tours = await features.query;
 
-const getTourById = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const tourData = await Tour.findById(id).populate('reviews')
- /* 
-  * I made a mongo pre middleware in the tour module insted of dublicating the populare all over the code 
-  .populate({
-    path: 'guides',
-    select: '-passwordChangedAt -__v',
-  });*/
-  /* 
-  * With populate in the select field :
-  * when we put (-) before the field name it will hide it and show other fields info 
-  * but when we don't put(-) before the field then it will only show that field and hide the other fields info
-  */
-  // * considering the data type in the equalization process
-  // const tour = tours.find((e) => id == e.id); // * not considering the data type in the equalization process
-  if (!tourData) {
-    return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
-  }
-  res.status(200).json({
-    status: 'suc',
-    data: {
-      tour: tourData,
-    },
-  });
-});
+//   // Send data
+//   res.status(200).json({
+//     status: 'suc',
+//     tourLength: tours.length,
+//     data: {
+//       tours: tours,
+//     },
+//   });
+// });
 
-const createTour = catchAsync(async (req, res, next) => {
-  // const tourNewId = tours[tours.length - 1].id + 1;
-  // const newTour = Object.assign({ id: tourNewId }, req.body);
-  // console.log(newTour);
-  // tours.push(newTour);
-  // fs.writeFile(tourSimplePath, JSON.stringify(tours), (err) => {
-  //   if (err) {
-  //     return res.status(404).send('Error');
-  //   } else {
+// To populate the review inside the tour pass the options as parameter inside the getOne() 
+const getTourById = getOne(Tour,{path:'reviews'});
+// const getTourById = catchAsync(async (req, res, next) => {
+//   const { id } = req.params;
+//   const tourData = await Tour.findById(id).populate('reviews')
+//  /* 
+//   * I made a mongo pre middleware in the tour module insted of dublicating the populare all over the code 
+//   .populate({
+//     path: 'guides',
+//     select: '-passwordChangedAt -__v',
+//   });*/
+//   /* 
+//   * With populate in the select field :
+//   * when we put (-) before the field name it will hide it and show other fields info 
+//   * but when we don't put(-) before the field then it will only show that field and hide the other fields info
+//   */
+//   // * considering the data type in the equalization process
+//   // const tour = tours.find((e) => id == e.id); // * not considering the data type in the equalization process
+//   if (!tourData) {
+//     return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
+//   }
+//   res.status(200).json({
+//     status: 'suc',
+//     data: {
+//       tour: tourData,
+//     },
+//   });
+// });
 
-  //     res.status(201).json({
-  //       status: 'suc',
-  //       data: {
-  //         tour: newTour,
-  //       },
-  //     });
-  //   }
-  // });
-  const newTour = await Tour.create(req.body);
-  // await newTour.save();
-  res.status(201).json({
-    status: 'suc',
-    data: {
-      tour: newTour,
-    },
-  });
-});
+const createTour = createOne(Tour);
 
-const updateTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+// const createTour = catchAsync(async (req, res, next) => {
+//   // const tourNewId = tours[tours.length - 1].id + 1;
+//   // const newTour = Object.assign({ id: tourNewId }, req.body);
+//   // console.log(newTour);
+//   // tours.push(newTour);
+//   // fs.writeFile(tourSimplePath, JSON.stringify(tours), (err) => {
+//   //   if (err) {
+//   //     return res.status(404).send('Error');
+//   //   } else {
 
-  const tour = await Tour.findByIdAndUpdate(id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  // await tour.save();
-  // const tour = tours.find((e) => parseInt(id) === e.id); //considering the data type in the equalization process
-  // const tour = tours.find((e) => id == e.id); // not considering the data type in the equalization process
-  if (!tour) {
-    return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
-  }
-  res.status(200).json({
-    status: 'suc',
-    data: {
-      tour,
-    },
-  });
-});
+//   //     res.status(201).json({
+//   //       status: 'suc',
+//   //       data: {
+//   //         tour: newTour,
+//   //       },
+//   //     });
+//   //   }
+//   // });
+//   const newTour = await Tour.create(req.body);
+//   // await newTour.save();
+//   res.status(201).json({
+//     status: 'suc',
+//     data: {
+//       tour: newTour,
+//     },
+//   });
+// });
+
+const updateTour = updateOne(Tour);
+
+// const updateTour = catchAsync(async (req, res, next) => {
+//   const { id } = req.params;
+
+//   const tour = await Tour.findByIdAndUpdate(id, req.body, {
+//     new: true,
+//     runValidators: true,
+//   });
+//   // await tour.save();
+//   // const tour = tours.find((e) => parseInt(id) === e.id); //considering the data type in the equalization process
+//   // const tour = tours.find((e) => id == e.id); // not considering the data type in the equalization process
+//   if (!tour) {
+//     return next(new AppError(404, `The tour with the id:${id} dos'nt exist!`));
+//   }
+//   res.status(200).json({
+//     status: 'suc',
+//     data: {
+//       tour,
+//     },
+//   });
+// });
 
 const deleteTour = deleteOne(Tour);
 
