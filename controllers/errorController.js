@@ -59,16 +59,17 @@ const globalError = (err, req, res, next) => {
     /* wont work because: 
     about the problem of the "name" property, you won't see the name property in the console, not either in postman, the reason for that is that the "name" property is moved from the base object to its prototype, this is why you are not seeing it all. Mongoose is updated, they changed that to be in the prototype.
 
-the same thing about "message" for the people who can't see the "message" property in their output, the reason is that our "message" property is in the prototype and not in the base object which is err
+    the same thing about "message" for the people who can't see the "message" property in their output, the reason is that our "message" property is in the prototype and not in the base object which is err
 
-remember that? we used super(message) in our AppError class.
+    remember that? we used super(message) in our AppError class.
 
-so all of your problems are because of the destructuring assignment, when you do destructure for an object, you're not copying the prototype of the err object, what you're doing is that you're copying the err object's own methods and properties but not the prototype ones. */
+    so all of your problems are because of the destructuring assignment, when you do destructure for an object, you're not copying the prototype of the err object, what you're doing is that you're copying the err object's own methods and properties but not the prototype ones. */
 
     // let error = err ;
     /* it works well but it's not a good practice to change the value of a function parameter, maybe later you would like to add more lines of code to this function that are based on that parameter before it was changed, this may result in a bug, therefore you'll have to spend another day until you finally find it.
 
-If you're managing to implement it this way, you don't need to create a new reference to this variable, you can use the err object directly without creating the error one.*/
+    If you're managing to implement it this way, you don't need to create a new reference to this variable, you can use the err object directly without creating the error one.
+*/
 
     let error = Object.create(err);
     if (error.name === 'CastError') {

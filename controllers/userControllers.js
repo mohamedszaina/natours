@@ -40,6 +40,11 @@ const createUser = catchAsync(async (req, res, next) => {
     message:'This rout is not defined! use /signup instead' 
   });
 });
+
+const getMe = (req,res,next)=>{
+  req.params.id = req.user.id;
+  next();
+}
 const getUserById = getOne(User);
 // const getUserById = catchAsync(async (req, res, next) => {
 //   const id = req.params.id;
@@ -131,4 +136,5 @@ module.exports = {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe
 };
