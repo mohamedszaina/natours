@@ -48,7 +48,7 @@ reviewSchema.pre(/^find/,function(next){
     // })
     this.populate({
         path:'user',
-        select:'name'
+        select:'name photo' // to populate more than a field put a space between them.
     })
     next()
 })
