@@ -24,15 +24,24 @@ const tourRoute = express.Router();
 tourRoute.use('/:tourId/reviews', reviewRoute);
 
 tourRoute.route('/tour-stats').get(getTourStats);
-tourRoute.route('/monthly-plan/:year').get(monthlyPlan);
+tourRoute
+  .route('/monthly-plan/:year')
+  .get(
+    isLoginProtection,
+    restrictTo('admin', 'lead-guide', 'guide'),
+    monthlyPlan
+  );
 tourRoute.route('/top-5-cheap').get(aliasTopTours, getAllTours);
-tourRoute.route('/').get(getAllTours).post(createTour);
+tourRoute
+  .route('/')
+  .get(getAllTours)
+  .post(isLoginProtection, restrictTo('admin', 'lead-guide'), createTour);
 tourRoute
   .route('/:id')
   .get(getTourById)
-  .patch(isLoginProtection, updateTour)
+  .patch(isLoginProtection, restrictTo('admin', 'lead-guide'), updateTour)
   .delete(isLoginProtection, restrictTo('admin', 'lead-guide'), deleteTour);
 
-  // I did this code before I use the mearge in the review router
-  // tourRoute.route('/:tourId/reviews').post(isLoginProtection,restrictTo('user'),createNewReview)
+// I did this code before I use the mearge in the review router
+// tourRoute.route('/:tourId/reviews').post(isLoginProtection,restrictTo('user'),createNewReview)
 module.exports = tourRoute;

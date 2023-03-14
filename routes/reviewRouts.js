@@ -14,21 +14,16 @@ const {
 
 // Thanks to {mergeParams:true} we can get access to review id which actually comes from the other router before which is the tourRoute.use('/:tourId/reviews', reviewRoute);.
 const reviewRoute = express.Router({ mergeParams: true });
-
+reviewRoute.use(isLoginProtection);
 reviewRoute
   .route('/')
   .get(getAllReviews)
-  .post(
-    isLoginProtection,
-    restrictTo('user', 'admin'),
-    setTourUserIds,
-    createNewReview
-  );
+  .post(restrictTo('user'), setTourUserIds, createNewReview);
 
 reviewRoute
   .route('/:id')
   .get(getReviewById)
-  .patch(updateReview)
-  .delete(deleteReview);
+  .patch(restrictTo('user','admin'),updateReview)
+  .delete(restrictTo('user','admin'),deleteReview);
 
 module.exports = reviewRoute;
