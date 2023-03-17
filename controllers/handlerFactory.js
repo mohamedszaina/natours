@@ -12,6 +12,7 @@ const getAll = Model => catchAsync(async (req, res, next) => {
     .sort()
     .limitFields()
     .pagination();
+  // const doc = await features.query.explain(); // To explain more detailes about the query.
   const doc = await features.query;
 
   // Send data

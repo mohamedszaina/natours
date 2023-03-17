@@ -120,6 +120,33 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// mongodb index
+/* 
+So when all we ever do is to just query for one single field alone,
+then a single field index is perfect because remember the index that we just set
+before is called a single field index.
+Not sure if I mentioned it back then but I think I did.
+But anyway, if we sometimes query for that field but combined with another one,
+then it's actually more efficient to create a compound index.
+"compound indexes, where a single index structure holds references to multiple fields within a collection's documents"
+"So one with two fields and not just one."
+
+why don't we set indexes on all the fields?
+
+The reason for that is that each index actually uses resources,
+so as you can actually see here right.
+And also, each index needs to be updated each time
+that the underlying collection is updated.
+So if you have a collection with a high write-read ratio,
+so a collection that is mostly written to, then it would make absolutely no sense
+to create an index on any field in this collection because the cost of always updating the index
+and keeping it in memory clearly outweighs the benefit of having the index in the first place
+if we rarely have searches, so have queries, for that collection.
+*/
+tourSchema.index({price:1 , ratingsAverage:-1});
+tourSchema.index({slug:1});
+
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
