@@ -329,6 +329,46 @@ const getToursWithIn = catchAsync(async (req, res, next) => {
   });
 });
 
+const getToursDistance = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const convertDistance = unit === 'mi' ? 0.000621371 : 0.001;
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        'Please provide latitutr and longitude in the format lat,lng.',
+        400
+      )
+    );
+  }
+
+  const distances = await Tour.aggregate([
+    {
+      $geoNear: { // $geoNear properte must be the first index in the pipeline aggregate in the whole project
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1], // '* 1' to convert it to an Integer
+        },
+        distanceField: 'distance',
+        distanceMultiplier: convertDistance, 
+      },
+    },
+    {
+      $project: { // show only => name and distance
+        name: 1,
+        distance: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'suc',
+    data: {
+      data: distances,
+    },
+  });
+});
+
 module.exports = {
   getAllTours,
   getTourById,
@@ -339,6 +379,7 @@ module.exports = {
   getTourStats,
   monthlyPlan,
   getToursWithIn,
+  getToursDistance,
   // checkId,
   // checkBody,
 };

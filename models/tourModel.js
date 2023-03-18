@@ -202,8 +202,27 @@ tourSchema.pre(/^find/, function (next) {
 // });
 // Aggregation middleware
 tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  // this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   // console.log(this.pipeline());
+  // next();
+
+  // After I add the $geoNear in the GetTourDistance Route
+  /* This will simply put the  '$match: { secretTour: { $ne: true } }' secundly if any one request for the GetTourDistance Route 
+  because $geoNear properte must be the first index in the pipeline aggregate
+   */
+  const aggregationExcludeSecretTour = {
+    $match: { secretTour: { $ne: true } },
+  };
+  this.pipeline().unshift(aggregationExcludeSecretTour);
+
+  const geoNearOpt = this.pipeline().find((el) => el.$geoNear);
+
+  if (geoNearOpt) {
+    const index = this.pipeline().findIndex((el) => el.$geoNear);
+    this.pipeline().splice(index, index);
+    this.pipeline().unshift(geoNearOpt);
+  }
+  console.log('💰', this.pipeline());
   next();
 });
 const Tour = mongoose.model('Tour', tourSchema);

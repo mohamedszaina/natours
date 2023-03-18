@@ -11,7 +11,7 @@ const {
   deleteTour,
   aliasTopTours,
   getTourStats,
-  monthlyPlan,getToursWithIn,
+  monthlyPlan,getToursWithIn, getToursDistance,
   // checkId,
   // checkBody,
 } = require('./../controllers/tourControllers');
@@ -33,6 +33,7 @@ tourRoute
   );
 tourRoute.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 tourRoute.route('/tours-within/:distance/center/:latlng/unit/:unit').get(getToursWithIn);
+tourRoute.route('/distance/:latlng/unit/:unit').get(getToursDistance);
 tourRoute
   .route('/')
   .get(getAllTours)
