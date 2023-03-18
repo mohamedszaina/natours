@@ -2,7 +2,13 @@
 const { Tour } = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync');
 // const AppError = require('../utils/appError');
-const { deleteOne, updateOne, createOne, getOne, getAll } = require('./handlerFactory');
+const {
+  deleteOne,
+  updateOne,
+  createOne,
+  getOne,
+  getAll,
+} = require('./handlerFactory');
 
 // const tourSimplePath = `${__dirname}/../dev-data/data/tours-simple.json`;
 // const tours = JSON.parse(fs.readFileSync(tourSimplePath));
@@ -112,20 +118,20 @@ const getAllTours = getAll(Tour);
 //   });
 // });
 
-// To populate the review inside the tour pass the options as parameter inside the getOne() 
-const getTourById = getOne(Tour,{path:'reviews'});
+// To populate the review inside the tour pass the options as parameter inside the getOne()
+const getTourById = getOne(Tour, { path: 'reviews' });
 // const getTourById = catchAsync(async (req, res, next) => {
 //   const { id } = req.params;
 //   const tourData = await Tour.findById(id).populate('reviews')
-//  /* 
-//   * I made a mongo pre middleware in the tour module insted of dublicating the populare all over the code 
+//  /*
+//   * I made a mongo pre middleware in the tour module insted of dublicating the populare all over the code
 //   .populate({
 //     path: 'guides',
 //     select: '-passwordChangedAt -__v',
 //   });*/
-//   /* 
+//   /*
 //   * With populate in the select field :
-//   * when we put (-) before the field name it will hide it and show other fields info 
+//   * when we put (-) before the field name it will hide it and show other fields info
 //   * but when we don't put(-) before the field then it will only show that field and hide the other fields info
 //   */
 //   // * considering the data type in the equalization process
@@ -296,6 +302,33 @@ const monthlyPlan = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+const getToursWithIn = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        'Please provide latitutr and longitude in the format lat,lng.',
+        400
+      )
+    );
+  }
+  // console.log(distance, latlng, unit);
+  // console.log(lat, lng);
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+  res.status(200).json({
+    status: 'suc',
+    length: tours.length,
+    data: {
+      data: tours,
+    },
+  });
+});
+
 module.exports = {
   getAllTours,
   getTourById,
@@ -305,6 +338,7 @@ module.exports = {
   aliasTopTours,
   getTourStats,
   monthlyPlan,
+  getToursWithIn,
   // checkId,
   // checkBody,
 };

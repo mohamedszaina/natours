@@ -147,7 +147,7 @@ if we rarely have searches, so have queries, for that collection.
 */
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
-
+tourSchema.index({ startLocation: '2dsphere' });
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
