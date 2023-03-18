@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { Tour } = require('./tourModel');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -56,7 +58,7 @@ reviewSchema.pre(/^find/, function (next) {
 
 /*
 
-reviewSchema.statics.calcAvarageRatings to basically create the statistics of the average
+reviewSchema.statics.calcAverageRatings to basically create the statistics of the average
 and number of ratings for the tour ID for which the current review was created.
 
 And we created this function as a static method, because we needed to call the aggregate function on the model.
@@ -73,8 +75,7 @@ For that we need to use 'this.constructor' because this is what points to the cu
 
 */
 
-
-reviewSchema.statics.calcAvarageRatings = async function (tourId) {
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
@@ -88,14 +89,79 @@ reviewSchema.statics.calcAvarageRatings = async function (tourId) {
     },
   ]);
   console.log(stats);
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].numOfRatings,
-    ratingsAverage: stats[0].avgOfRatings,
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].numOfRatings,
+      ratingsAverage: stats[0].avgOfRatings,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
 };
 
-reviewSchema.post('save',function(){
-  this.constructor.calcAvarageRatings(this.tour)
-})
+// Calculating Average Rating Rivews on Tours When Creating A New Reivew
+reviewSchema.post('save', function () {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+// Calculating Average Rating Rivews on Tours When Updated or Deleted
+/*
+The old way 
+So in order to be able to run 'calcAverageRatings' function here also on update and on delete,
+we actually need to use the query middleware that Mongoose gives us for these situations.
+
+Okay, so, we do not have a handy document middleware, which works, for these functions,
+but instead we need to use the query middleware, and in that one, we do not directly have access
+to the current document.
+And so we need to go around that by using this findOne here, and so basically retrieving
+the current document from the database.
+
+We then store it on the current query variable, and so that's 'this', and by doing that,
+we then get access to it in the 'post middleware'.
+
+And it's then only in the post middleware where we actually calculate the statistics for reviews.
+And remember that we do it this way because if we did it right in the 'pre' middleware function,
+then the underlying data would not have been updated at that point and so the calculated statistics
+would not really be up to date. 
+And so that's why we used this two-step process here basically.
+*/
+// findByIdAndUpdate
+// findByIdAndDelete
+// reviewSchema.pre(/^findOneAnd/, async function (next) {
+//   this.rev = await this.clone().findOne();
+//   // console.log(this.rev);
+//   next();
+// });
+
+// reviewSchema.post(/^findOneAnd/, async function () {
+//   // await this.findOne(); does NOT work here, query has already executed
+//   await this.rev.constructor.calcAverageRatings(this.rev.tour);
+// });
+
+// Calculating Average Rating Rivews on Tours When Updated or Deleted The new way
+reviewSchema.post(
+  /^findOneAnd/,
+  // catchAsync(
+  async (doc, next) => {
+    console.log('Before this is docccccccccc', doc);
+    // if (!doc._id) {
+    //   return next(
+    //     new AppError(
+    //       404,
+    //       `The document with the id:${doc._id} dos'nt exist!`
+    //     )
+    //   );
+    // }
+    await doc.constructor.calcAverageRatings(doc.tour);
+    console.log('After this is docccccccccc', doc);
+    next();
+  }
+);
+// );
+
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = { Review };

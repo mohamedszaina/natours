@@ -21,7 +21,6 @@ const {
 
 const userRoute = express.Router();
 // User Routes
-userRoute.get('/me', isLoginProtection, getMe, getUserById);
 
 userRoute.post('/signup', signup);
 userRoute.post('/login', login);
@@ -35,6 +34,7 @@ is to basically protect all the routes that come after this point because middle
 userRoute.use(isLoginProtection);
 
 userRoute.patch('/updatePassword', updatePassword);
+userRoute.get('/me', getMe, getUserById);
 userRoute.patch('/updateMe', updateMe);
 userRoute.delete('/deleteMe', deleteMe);
 

@@ -133,7 +133,7 @@ const isLoginProtection = catchAsync(async (req, res, next) => {
 // To prevent any one but who have the right role to do any changes on specific things
 const restrictTo = (...roles) => {
   return (req, res, next) => {
-    console.log(req.user);
+    // console.log(req.user);
     const { role } = req.user;
     if (!roles.includes(role)) {
       const message = `You don't have the permissions to perform this action.`;

@@ -4,10 +4,10 @@ const apiFeatures = require('../utils/apiFeatures')
 
 const getAll = Model => catchAsync(async (req, res, next) => {
   // these tow lines of code for the review section only and I put them here becuse its the easy way to do it 
-  let filter = {};
-  if (req.params.tourId) filter = { tour: req.params.tourId };
+  let revfilter = {};
+  if (req.params.tourId) revfilter = { tour: req.params.tourId };
 
-  const features = new apiFeatures(Model.find(filter), req.query)
+  const features = new apiFeatures(Model.find(revfilter), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -18,7 +18,7 @@ const getAll = Model => catchAsync(async (req, res, next) => {
   // Send data
   res.status(200).json({
     status: 'suc',
-    tourLength: doc.length,
+    Length: doc.length,
     message: {
       data: doc,
     },

@@ -139,7 +139,7 @@ node -e "console.log(require('crypto').randomBytes(4).toString('hex'));"
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  console.log({ resetToken }, this.passwordResetToken);
+  // console.log({ resetToken }, this.passwordResetToken);
   // set an expiration time to it
   this.passwordResetExpires = Date.now() + 5 * 60 * 1000;
   return resetToken;
