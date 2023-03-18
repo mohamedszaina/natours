@@ -41,6 +41,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1, 'Rating must be above 1.0'],
       max: [5, 'Rating must be below 5.0'],
+      set: (val) => Math.round(val * 10) / 10, // So set and this function will be run each time that a new value is set for this field
     },
     ratingsQuantity: {
       type: Number,
@@ -144,18 +145,18 @@ to create an index on any field in this collection because the cost of always up
 and keeping it in memory clearly outweighs the benefit of having the index in the first place
 if we rarely have searches, so have queries, for that collection.
 */
-tourSchema.index({price:1 , ratingsAverage:-1});
-tourSchema.index({slug:1});
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
 
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
-tourSchema.virtual('reviews',{
-  ref:'Review',
-  foreignField:'tour',
-  localField:"_id"
-})
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
 // Document Middleware it works only for create and save
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
