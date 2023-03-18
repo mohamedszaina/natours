@@ -41,6 +41,18 @@ const reviewSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+/* 
+By putting the index unique for tour and user in a compaound Index => preventing duplicate reviews from the same user for each tour.
+Now each combination of tour and user has always to be unique 
+each user should only review each tour once.
+So basically, a duplicate review happens when there is a review with the same user
+and the same tour ID and that what we wanna prevent.
+'prevent users from writing multiple reviews for the same tours.'
+*/
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true }); 
+
+
 reviewSchema.pre(/^find/, function (next) {
   // this.populate({
   //     path:'user',
