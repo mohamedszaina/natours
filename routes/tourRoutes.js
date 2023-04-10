@@ -28,7 +28,9 @@ tourRoute
   .route('/monthly-plan/:year')
   .get(
     isLoginProtection,
-    restrictTo('admin', 'lead-guide', 'guide'),
+    restrictTo('admin', 'lead-guide', 
+    // 'guide'
+    ),
     monthlyPlan
   );
 tourRoute.route('/top-5-cheap').get(aliasTopTours, getAllTours);
