@@ -14,10 +14,10 @@ const tourRoute = require('./routes/tourRoutes');
 const reviewRoute = require('./routes/reviewRouts');
 
 const app = express();
-app.set('view engine','pug');
-app.set('views',path.join(__dirname,'views'));
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 // Serving static files
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 /*  In order to prevent the same IP
     from making too many requests to our API
@@ -79,12 +79,25 @@ app.use(
 );
 
 // Routes
-app.get('/',(req,res,next)=>{
-  res.status(200).render('base',{
-    tour:'Hello',
-    user:'Mohamed'
-  })
-})
+app.get('/', (req, res, next) => {
+  res.status(200).render('base', {
+    tour: 'Hello',
+    user: 'Mohamed',
+  });
+});
+app.get('/overview', (req, res, next) => {
+  res.status(200).render('overview', {
+    tour: 'Hello',
+    user: 'Mohamed',
+  });
+});
+app.get('/tour', (req, res, next) => {
+  const { id } = req.params;
+  res.status(200).render('tour', {
+    tour: 'Hello',
+    user: 'Mohamed',
+  });
+});
 
 //Tours Routes
 app.use('/api/v1/tours', tourRoute);
