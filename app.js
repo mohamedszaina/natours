@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -13,6 +14,10 @@ const tourRoute = require('./routes/tourRoutes');
 const reviewRoute = require('./routes/reviewRouts');
 
 const app = express();
+app.set('view engine','pug');
+app.set('views',path.join(__dirname,'views'));
+// Serving static files
+app.use(express.static(path.join(__dirname,'public')));
 
 /*  In order to prevent the same IP
     from making too many requests to our API
@@ -73,10 +78,14 @@ app.use(
   })
 );
 
-// Serving static files
-app.use(express.static(`${__dirname}/public`));
-
 // Routes
+app.get('/',(req,res,next)=>{
+  res.status(200).render('base',{
+    tour:'Hello',
+    user:'Mohamed'
+  })
+})
+
 //Tours Routes
 app.use('/api/v1/tours', tourRoute);
 
